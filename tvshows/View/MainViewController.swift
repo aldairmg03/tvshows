@@ -6,19 +6,15 @@
 //
 
 import UIKit
+import Combine
 
 class MainViewController: UIViewController {
     
-    public var movies: [Movie] = [
-        Movie(posterPath: nil, popularity: 0.0, id: 1, backdropPath: "", voteAverage: 0.0, overview: "", firstAirDate: "", originCountry: [""], genreIDS: [1], originalLanguage: "", voteCount: 1, name: "", originalName: ""),
-        Movie(posterPath: nil, popularity: 0.0, id: 1, backdropPath: "", voteAverage: 0.0, overview: "", firstAirDate: "", originCountry: [""], genreIDS: [1], originalLanguage: "", voteCount: 1, name: "", originalName: ""),
-        Movie(posterPath: nil, popularity: 0.0, id: 1, backdropPath: "", voteAverage: 0.0, overview: "", firstAirDate: "", originCountry: [""], genreIDS: [1], originalLanguage: "", voteCount: 1, name: "", originalName: ""),
-        Movie(posterPath: nil, popularity: 0.0, id: 1, backdropPath: "", voteAverage: 0.0, overview: "", firstAirDate: "", originCountry: [""], genreIDS: [1], originalLanguage: "", voteCount: 1, name: "", originalName: ""),
-        Movie(posterPath: nil, popularity: 0.0, id: 1, backdropPath: "", voteAverage: 0.0, overview: "", firstAirDate: "", originCountry: [""], genreIDS: [1], originalLanguage: "", voteCount: 1, name: "", originalName: ""),
-        Movie(posterPath: nil, popularity: 0.0, id: 1, backdropPath: "", voteAverage: 0.0, overview: "", firstAirDate: "", originCountry: [""], genreIDS: [1], originalLanguage: "", voteCount: 1, name: "", originalName: ""),
-        Movie(posterPath: nil, popularity: 0.0, id: 1, backdropPath: "", voteAverage: 0.0, overview: "", firstAirDate: "", originCountry: [""], genreIDS: [1], originalLanguage: "", voteCount: 1, name: "", originalName: ""),
-        Movie(posterPath: nil, popularity: 0.0, id: 1, backdropPath: "", voteAverage: 0.0, overview: "", firstAirDate: "", originCountry: [""], genreIDS: [1], originalLanguage: "", voteCount: 1, name: "", originalName: "")
-    ]
+    public var movies: [Movie] = []
+    
+    private var subscriptions = Set<AnyCancellable>()
+    private let viewModelInput = MainViewModelInput()
+    private let viewModel: MainViewModelProtocol
     
     private lazy var segmentedControl: UISegmentedControl = {
         let segmentedControl = UISegmentedControl(items: ["popular".localized, "top_rated".localized, "on_tv".localized, "airing_today".localized])
@@ -45,14 +41,38 @@ class MainViewController: UIViewController {
         collectionView.backgroundColor = UIColor(named: "mainColor")
         return collectionView
     }()
+    
+    private lazy var loadingActivityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView()
+        indicator.style = .large
+        indicator.color = .lightGray
+        indicator.startAnimating()
+        indicator.autoresizingMask = [
+            .flexibleLeftMargin, .flexibleRightMargin,
+            .flexibleTopMargin, .flexibleBottomMargin
+        ]
+        return indicator
+    }()
+    
+    init() {
+        viewModel = MainViewModel()
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
+        bind()
+        fetchTvShows(index: 0)
     }
     
     @objc private func segmentedValueChanged(_ sender: UISegmentedControl!) {
         print("Selected Segment Index is : \(sender.selectedSegmentIndex)")
+        fetchTvShows(index: sender.selectedSegmentIndex)
     }
     
     @objc func openTapped() {
@@ -69,6 +89,22 @@ class MainViewController: UIViewController {
 
 private extension MainViewController {
     
+    func bind() {
+        let output = viewModel.bind(input: viewModelInput)
+        
+        output.showLoadingPublisher.sink { [weak self] in
+            self?.displayLoading()
+        }.store(in: &subscriptions)
+
+        output.dismissLoadingPublisher.sink { [weak self] in
+            self?.dismissLoading()
+        }.store(in: &subscriptions)
+        
+        output.tvShows.sink {[weak self] tvShows in
+            self?.loadData(items: tvShows)
+        }.store(in: &subscriptions)
+    }
+    
     func setup() {
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "list.dash"), style: .done, target: self, action: #selector(openTapped))
         title = "tv_shows".localized
@@ -80,6 +116,11 @@ private extension MainViewController {
     func addViews() {
         view.addSubview(segmentedControl)
         view.addSubview(searchResultsCollecitonView)
+        loadingActivityIndicator.center = CGPoint(
+            x: view.bounds.midX,
+            y: view.bounds.midY
+        )
+        view.addSubview(loadingActivityIndicator)
     }
     
     func setConstraints() {
@@ -95,6 +136,23 @@ private extension MainViewController {
             searchResultsCollecitonView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             searchResultsCollecitonView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
+    }
+    
+    func fetchTvShows(index: Int) {
+        viewModelInput.fetchTvShowsPublisher.send(index)
+    }
+    
+    func displayLoading() {
+        loadingActivityIndicator.isHidden = false
+    }
+    
+    func dismissLoading() {
+        loadingActivityIndicator.isHidden = true
+    }
+    
+    func loadData(items: [Movie]) {
+        self.movies = items
+        self.searchResultsCollecitonView.reloadData()
     }
     
 }

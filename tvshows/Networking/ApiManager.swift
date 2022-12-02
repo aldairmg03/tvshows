@@ -63,7 +63,7 @@ extension ApiManager {
         var components = URLComponents()
         components.scheme = TheMovieDBAPI.scheme
         components.host = TheMovieDBAPI.host
-        components.path = TheMovieDBAPI.path + "/\(category)"
+        components.path = TheMovieDBAPI.path + "\(category)"
         
         components.queryItems = [
             URLQueryItem(name: "api_key", value: TheMovieDBAPI.key)
