@@ -1,0 +1,17 @@
+/* 
+  Localizable.strings
+  tvshows
+
+  Created by Aldair Martínez on 02/12/22.
+  
+*/
+"tv_shows" = "TV Shows";
+"popular" = "Popular";
+"top_rated" = "Top Rated";
+"on_tv" = "On TV";
+"airing_today" = "Airing Today";
+"question" = "What do you want to do?";
+"view_profile" = "View Profile";
+"log_out" = "Log out";
+"cancel" = "Cancel";
+"profile" = "Profile";
