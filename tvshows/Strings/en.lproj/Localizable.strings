@@ -15,3 +15,7 @@
 "log_out" = "Log out";
 "cancel" = "Cancel";
 "profile" = "Profile";
+"username" = "Username";
+"password" = "Password";
+"login" = "Log in";
+"error_message" = "Invalid username and/or password. You did not provide a valid logn.";

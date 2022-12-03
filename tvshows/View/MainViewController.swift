@@ -80,7 +80,13 @@ class MainViewController: UIViewController {
         ac.addAction(UIAlertAction(title: "view_profile".localized, style: .default, handler: { _ in
             self.navigationController?.present(ProfileViewController(), animated: true, completion: nil)
         }))
-        ac.addAction(UIAlertAction(title: "log_out".localized, style: .destructive, handler: nil))
+        ac.addAction(UIAlertAction(title: "log_out".localized, style: .destructive, handler: { _ in
+            let loginVC = LoginViewController()
+            guard let window = self.view.window else {
+                return
+            }
+            window.switchRootViewController(loginVC, animated: true)
+        }))
         ac.addAction(UIAlertAction(title: "cancel".localized, style: .cancel))
         ac.popoverPresentationController?.barButtonItem = self.navigationItem.rightBarButtonItem
         present(ac, animated: true)
