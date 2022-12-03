@@ -16,8 +16,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
-        //let navigationController = UINavigationController(rootViewController: MainViewController())
-        window?.rootViewController = LoginViewController()
+        
+        if TvShowUserDefaults.shared.requestToken != nil {
+            let navigationController = UINavigationController(rootViewController: MainViewController())
+            window?.rootViewController = navigationController
+        } else {
+            window?.rootViewController = LoginViewController()
+        }
+        
         window?.makeKeyAndVisible()
     }
 
