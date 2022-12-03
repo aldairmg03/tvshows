@@ -25,7 +25,7 @@ enum CategoryType: Int, Category {
         case .TOP_RATED:
             return "/tv/top_rated"
         case .ON_TV:
-            return "/tv/on_tv"
+            return "/tv/on_the_air"
         case .AIRING_TODAY:
             return "/tv/airing_today"
         }

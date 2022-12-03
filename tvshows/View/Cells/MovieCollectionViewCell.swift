@@ -14,20 +14,61 @@ class MovieCollectionViewCell: UICollectionViewCell {
     
     private lazy var posterImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.frame = CGRect(x: 0, y: 0, width: (UIScreen.main.bounds.width / 2) - 24, height: 180)
-        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 16
         return imageView
     }()
     
-    lazy var title: UILabel = {
+    private lazy var stackViewVertical: UIStackView = {
+        let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.distribution = .fillProportionally
+        stackView.spacing = 8
+        stackView.axis = .vertical
+        return stackView
+    }()
+    
+    private lazy var stackViewHorizontal: UIStackView = {
+        let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.distribution = .fillProportionally
+        stackView.spacing = 6
+        stackView.axis = .horizontal
+        return stackView
+    }()
+    
+    private lazy var titleLabel: UILabel = {
         var label = UILabel()
-        //label.setTe
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var dateLabel: UILabel = {
+        var label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var ratedLabel: UILabel = {
+        var label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = UIColor(named: "textColor")
+        label.font = UIFont.boldSystemFont(ofSize: 14)
+        return label
+    }()
+    
+    private lazy var descriptionLabel: UILabel = {
+        var label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 4
         return label
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.addSubview(posterImageView)
+        setupCell()
     }
     
     required init?(coder: NSCoder) {
@@ -37,12 +78,90 @@ class MovieCollectionViewCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         contentView.backgroundColor = UIColor(named: "cardColor")
-        posterImageView.frame = contentView.bounds
+        //posterImageView.frame = contentView.bounds
     }
     
-    public func configure(with posterPath: String) {
-        guard let url = URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)") else { return }
-        //posterImageView.sd_setImage(with: url)
+}
+
+private extension MovieCollectionViewCell {
+    
+    func setupCell() {
+        contentViewCornerRadius()
+        addViews()
+        setConstraints()
+    }
+    
+    func contentViewCornerRadius() {
+        contentView.layer.cornerRadius = 16.0
+        contentView.layer.masksToBounds = true
+        layer.cornerRadius = 16.0
+        layer.masksToBounds = false
+    }
+    
+    func addViews() {
+        contentView.addSubview(posterImageView)
+        contentView.addSubview(stackViewVertical)
+        
+        stackViewHorizontal.addArrangedSubview(dateLabel)
+        stackViewHorizontal.addArrangedSubview(ratedLabel)
+        
+        stackViewVertical.addArrangedSubview(titleLabel)
+        stackViewVertical.addArrangedSubview(stackViewHorizontal)
+        stackViewVertical.addArrangedSubview(descriptionLabel)
+    }
+    
+    func setConstraints() {
+        NSLayoutConstraint.activate([
+            posterImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            posterImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            posterImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            posterImageView.widthAnchor.constraint(equalToConstant: (UIScreen.main.bounds.width / 2)),
+            posterImageView.heightAnchor.constraint(equalToConstant: 180)
+        ])
+        
+        NSLayoutConstraint.activate([
+            stackViewVertical.topAnchor.constraint(equalTo: posterImageView.bottomAnchor, constant: 8),
+            stackViewVertical.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 6),
+            stackViewVertical.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -6),
+            stackViewVertical.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+        ])
+        
+        
+    }
+    
+}
+
+
+extension MovieCollectionViewCell {
+    
+    
+    public func configure(with tvShow: Movie) {
+        if let posterPath = tvShow.posterPath, let url = URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)") {
+            print(url)
+            posterImageView.load(url: url)
+        } else {
+            posterImageView.image = UIImage(named:"themoviedb")
+        }
+        titleLabel.text = tvShow.originalName
+        dateLabel.text = tvShow.firstAirDate
+        
+        let attachment = NSTextAttachment()
+        let image = UIImage(systemName: "star.fill")
+        image?.withTintColor(UIColor(named: "textColor")!)
+        attachment.image = image
+
+        let imageString = NSMutableAttributedString(attachment: attachment)
+        let textString = NSAttributedString(string: " \(tvShow.voteAverage)")
+        imageString.append(textString)
+
+        ratedLabel.attributedText = imageString
+        ratedLabel.sizeToFit()
+        
+        descriptionLabel.text = tvShow.overview ==  "" ? "\n\n\n\n" : tvShow.overview
+        
+        titleLabel.makeOutLine(textColor: UIColor(named: "textColor")!, size: 14)
+        dateLabel.makeOutLine(textColor: UIColor(named: "textColor")!, size: 14)
+        descriptionLabel.makeOutLine(textColor: .white, size: 12)
         
     }
     
