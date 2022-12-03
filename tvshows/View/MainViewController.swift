@@ -77,7 +77,9 @@ class MainViewController: UIViewController {
     
     @objc func openTapped() {
         let ac = UIAlertController(title: "question".localized, message: nil, preferredStyle: .actionSheet)
-        ac.addAction(UIAlertAction(title: "view_profile".localized, style: .default, handler: nil))
+        ac.addAction(UIAlertAction(title: "view_profile".localized, style: .default, handler: { _ in
+            self.navigationController?.present(ProfileViewController(), animated: true, completion: nil)
+        }))
         ac.addAction(UIAlertAction(title: "log_out".localized, style: .destructive, handler: nil))
         ac.addAction(UIAlertAction(title: "cancel".localized, style: .cancel))
         ac.popoverPresentationController?.barButtonItem = self.navigationItem.rightBarButtonItem
