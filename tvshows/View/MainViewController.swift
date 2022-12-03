@@ -31,7 +31,7 @@ class MainViewController: UIViewController {
     
     public lazy var searchResultsCollecitonView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: (UIScreen.main.bounds.width / 2) - 24, height: 250)
+        layout.itemSize = CGSize(width: (UIScreen.main.bounds.width / 2) - 24, height: 310)
         layout.minimumInteritemSpacing = 0
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -171,7 +171,7 @@ extension MainViewController: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
         let movie = movies[indexPath.row]
-        cell.configure(with: movie.posterPath ?? "")
+        cell.configure(with: movie)
         return cell
     }
     
