@@ -78,7 +78,6 @@ class MovieCollectionViewCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         contentView.backgroundColor = UIColor(named: "cardColor")
-        //posterImageView.frame = contentView.bounds
     }
     
 }
@@ -137,13 +136,16 @@ extension MovieCollectionViewCell {
     
     public func configure(with tvShow: Movie) {
         if let posterPath = tvShow.posterPath, let url = URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)") {
-            print(url)
             posterImageView.load(url: url)
         } else {
             posterImageView.image = UIImage(named:"themoviedb")
         }
         titleLabel.text = tvShow.originalName
-        dateLabel.text = tvShow.firstAirDate
+        if let airDate = airDateFormatter.date(from: tvShow.firstAirDate) {
+            dateLabel.text = "\(dateFormatter.string(from: airDate).lowercased())"
+        } else {
+            dateLabel.text = tvShow.firstAirDate
+        }
         
         let attachment = NSTextAttachment()
         let image = UIImage(systemName: "star.fill")

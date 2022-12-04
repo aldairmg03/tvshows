@@ -111,10 +111,6 @@ private extension MainViewController {
         output.tvShows.sink {[weak self] tvShows in
             self?.loadData(items: tvShows)
         }.store(in: &subscriptions)
-        
-        output.navigateToDetailPublisher.sink { [weak self] movieId in
-            print(movieId)
-        }.store(in: &subscriptions)
     }
     
     func setup() {
@@ -165,6 +161,7 @@ private extension MainViewController {
     func loadData(items: [Movie]) {
         self.movies = items
         self.tvShowsCollectionView.reloadData()
+        self.tvShowsCollectionView.setContentOffset(.zero, animated: true)
     }
     
 }
