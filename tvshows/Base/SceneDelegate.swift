@@ -17,12 +17,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
         
-        if TvShowUserDefaults.shared.requestToken != nil {
-            let navigationController = UINavigationController(rootViewController: MainViewController())
-            window?.rootViewController = navigationController
-        } else {
+        //if TvShowUserDefaults.shared.requestToken != nil {
+            //let navigationController = UINavigationController(rootViewController: MainViewController())
+            //window?.rootViewController = navigationController
+        //} else {
             window?.rootViewController = LoginViewController()
-        }
+        //}
         
         window?.makeKeyAndVisible()
     }
