@@ -78,7 +78,7 @@ class MainViewController: UIViewController {
     @objc func openTapped() {
         let ac = UIAlertController(title: "question".localized, message: nil, preferredStyle: .actionSheet)
         ac.addAction(UIAlertAction(title: "view_profile".localized, style: .default, handler: { _ in
-            self.navigationController?.present(ProfileViewController(), animated: true, completion: nil)
+            self.viewModelInput.navigateToProfilePublisher.send()
         }))
         ac.addAction(UIAlertAction(title: "log_out".localized, style: .destructive, handler: { _ in
             let loginVC = LoginViewController()

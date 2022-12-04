@@ -13,4 +13,5 @@ struct MainViewModelOutput {
     let dismissLoadingPublisher = PassthroughSubject<Void, Never>()
     let tvShows = PassthroughSubject<[Movie], Never>()
     let navigateToDetailPublisher = PassthroughSubject<Int, Never>()
+    let navigateToProfilePublisher = PassthroughSubject<Void, Never>()
 }

@@ -28,6 +28,10 @@ final class MainViewModel: MainViewModelProtocol {
             self?.navigateToMovieDetail(movieId: movieId)
         }).store(in: &subscriptions)
         
+        input.navigateToProfilePublisher.sink { [weak self] in
+            self?.navigateToMovieProfile()
+        }.store(in: &subscriptions)
+        
         return output
     }
     
@@ -51,6 +55,10 @@ final class MainViewModel: MainViewModelProtocol {
     
     func navigateToMovieDetail(movieId: Int) {
         self.output.navigateToDetailPublisher.send(movieId)
+    }
+    
+    func navigateToMovieProfile() {
+        self.output.navigateToProfilePublisher.send()
     }
     
 }

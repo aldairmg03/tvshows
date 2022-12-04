@@ -29,6 +29,10 @@ class MainCoordinator: Coordinator {
             self?.coordinateToDetail(movieId: movieId)
         }.store(in: &subscriptions)
         
+        output.navigateToProfilePublisher.sink { [weak self] movieId in
+            self?.coordinateToProfile()
+        }.store(in: &subscriptions)
+        
         navigationController = UINavigationController(rootViewController: controller)
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
@@ -37,6 +41,11 @@ class MainCoordinator: Coordinator {
     
     func coordinateToDetail(movieId: Int) {
         let detailCoordinator = DetailCoordinator(navigationController: self.navigationController!, movieId: movieId)
+        coordinate(to: detailCoordinator)
+    }
+    
+    func coordinateToProfile() {
+        let detailCoordinator = ProfileCoordinator(navigationController: self.navigationController!)
         coordinate(to: detailCoordinator)
     }
     

@@ -6,9 +6,14 @@
 //
 
 import UIKit
+import Combine
 
 class ProfileViewController: UIViewController {
 
+    private var subscriptions = Set<AnyCancellable>()
+    private let viewModelInput = ProfileViewModelInput()
+    private let viewModel: ProfileViewModelProtocol
+    
     private lazy var profileLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -29,21 +34,39 @@ class ProfileViewController: UIViewController {
         return label
     }()
     
+    init(viewModel: ProfileViewModelProtocol) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        bind()
         setupView()
+        getUsername()
     }
 
 }
 
 private extension ProfileViewController  {
     
+    func bind() {
+        let output = viewModel.bind(input: viewModelInput)
+        
+        output.usernamePublisher.sink { [weak self] username in
+            self?.configure(with: username)
+        }.store(in: &subscriptions)
+        
+    }
+    
     func setupView() {
         view.backgroundColor = UIColor(named: "mainColor")
         addViews()
         setConstraints()
-        configure()
     }
     
     func addViews() {
@@ -75,9 +98,14 @@ private extension ProfileViewController  {
 }
 
 extension ProfileViewController {
-    func configure() {
+    
+    private func getUsername() {
+        self.viewModelInput.getUsernamePublisher.send()
+    }
+    
+    private func configure(with username: String) {
         profileLabel.text = "profile".localized
-        nicknameLabel.text = "@nickname"
+        nicknameLabel.text = "at".localized + username
         profileLabel.setStyle(textColor: UIColor(named: "textColor")!, size: 24)
         nicknameLabel.setStyle(textColor: UIColor(named: "textColor")!, size: 16)
     }

@@ -21,3 +21,4 @@
 "error_message" = "Invalid username and/or password. You did not provide a valid logn.";
 "autors" = "Autors";
 "production_companies" = "Production Companies";
+"at" = "@";
