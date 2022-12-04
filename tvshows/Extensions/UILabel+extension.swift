@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 
 extension UILabel {
+    
     func setStyle(textColor: UIColor, size: CGFloat) {
         let fontSize = UIFont.boldSystemFont(ofSize: size)
         
