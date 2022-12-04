@@ -15,6 +15,7 @@ protocol ApiFetcheable {
     func createRequestToken() -> AnyPublisher<CreateTokenResponse, ApiError>
     
     func authentication(auth: Authentication) -> AnyPublisher<CreateTokenResponse, ApiError>
+    
 }
 
 class ApiManager {
@@ -43,7 +44,7 @@ extension ApiManager: ApiFetcheable {
         return request(.post, with: makeComponets(withEndpoint: TheMovieDBAPI.auth), data: jsonData)
     }
     
-    private func request<T>(
+    func request<T>(
         _ type: RequestType,
         with components: URLComponents,
         data: Data?
@@ -66,40 +67,6 @@ extension ApiManager: ApiFetcheable {
                 decode(pair.data)
             }
             .eraseToAnyPublisher()
-    }
-    
-}
-
-extension ApiManager {
-    
-    struct TheMovieDBAPI {
-        static let scheme = "https"
-        static let host = "api.themoviedb.org"
-        static let path = "/3"
-        static let key = "ff1541ffb94b89e3dc599b860dec920d"
-        
-        static let requesttoken = "/authentication/token/new"
-        static let auth = "/authentication/token/validate_with_login"
-    }
-    
-    enum RequestType: String {
-        case get = "GET"
-        case post = "POST"
-        case put = "PUT"
-        case delete = "DELETE"
-    }
-    
-    private func makeComponets(withEndpoint endpoint: String) -> URLComponents {
-        var components = URLComponents()
-        components.scheme = TheMovieDBAPI.scheme
-        components.host = TheMovieDBAPI.host
-        components.path = TheMovieDBAPI.path + "\(endpoint)"
-        
-        components.queryItems = [
-            URLQueryItem(name: "api_key", value: TheMovieDBAPI.key)
-        ]
-        
-        return components
     }
     
 }

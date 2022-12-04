@@ -10,4 +10,5 @@ import Combine
 
 struct MainViewModelInput {
     let fetchTvShowsPublisher = PassthroughSubject<Int, Never>()
+    let seeMovieDetailPublisher = PassthroughSubject<Int, Never>()
 }

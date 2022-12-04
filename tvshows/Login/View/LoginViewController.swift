@@ -137,11 +137,11 @@ private extension LoginViewController {
         }.store(in: &subscriptions)
         
         output.navigateToMainPublisher.sink { [weak self] in
-            let navigationController = UINavigationController(rootViewController: MainViewController())
+            /*let navigationController = UINavigationController(rootViewController: MainViewController())
             guard let window = self?.view.window else {
                 return
             }
-            window.switchRootViewController(navigationController, animated: true)
+            window.switchRootViewController(navigationController, animated: true)*/
         }.store(in: &subscriptions)
     }
     

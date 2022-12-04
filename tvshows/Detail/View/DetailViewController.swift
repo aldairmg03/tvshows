@@ -6,36 +6,47 @@
 //
 
 import UIKit
+import Combine
 
 class DetailViewController: UIViewController {
     
-    private var productionsCompanies: [String] = ["/9RO2vbQ67otPrBLXCaC8UMp3Qat.png", "/h3syDHowNmk61FzlW2GPY0vJCFh.png", "/9RO2vbQ67otPrBLXCaC8UMp3Qat.png", "/h3syDHowNmk61FzlW2GPY0vJCFh.png", "/9RO2vbQ67otPrBLXCaC8UMp3Qat.png", "/h3syDHowNmk61FzlW2GPY0vJCFh.png",]
+    private var productionsCompanies: [ProductionCompany] = []
+    private var autors: [CreatedBy] = []
+    
+    private var subscriptions = Set<AnyCancellable>()
+    private let viewModelInput = DetailViewModelInput()
+    private let viewModel: DetailViewModelProtocol
+    
+    private lazy var scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
+    
+    private lazy var mainView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     
     private lazy var backdropImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.image = UIImage(named: "banner")
-        return imageView
-    }()
-
-    private lazy var posterImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.image = UIImage(named: "banner")
-        imageView.clipsToBounds = true
         return imageView
     }()
     
     private lazy var titleLabel: UILabel = {
-        var label = UILabel()
+        let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 5
         return label
     }()
     
-    private lazy var ratedLabel: UILabel = {
-        var label = UILabel()
+    private lazy var genresLabel: UILabel = {
+        let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
         return label
     }()
     
@@ -51,13 +62,26 @@ class DetailViewController: UIViewController {
     private lazy var descriptionLabel: UILabel = {
         var label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 8
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    private lazy var productionCompinesLabel: UILabel = {
+        var label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var autorsLabel: UILabel = {
+        var label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     public lazy var productionCompaniesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: 100, height: 150 )
+        let sizeView = (UIScreen.main.bounds.width / 4) - 12
+        layout.itemSize = CGSize(width: sizeView, height: sizeView)
         layout.minimumInteritemSpacing = 0
         layout.scrollDirection = .horizontal
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -69,102 +93,223 @@ class DetailViewController: UIViewController {
         return collectionView
     }()
     
+    public lazy var createByCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        let sizeView = 70
+        layout.itemSize = CGSize(width: sizeView, height: sizeView)
+        layout.minimumInteritemSpacing = 0
+        layout.scrollDirection = .horizontal
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.register(CreateByCollectionViewCell.self, forCellWithReuseIdentifier: CreateByCollectionViewCell.identifier)
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.backgroundColor = UIColor(named: "mainColor")
+        return collectionView
+    }()
+    
+    private lazy var loadingActivityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView()
+        indicator.style = .large
+        indicator.color = .lightGray
+        indicator.startAnimating()
+        indicator.autoresizingMask = [
+            .flexibleLeftMargin, .flexibleRightMargin,
+            .flexibleTopMargin, .flexibleBottomMargin
+        ]
+        return indicator
+    }()
+    
+    init(viewModel: DetailViewModelProtocol) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
+        bind()
+        viewModelInput.getDetailPublisher.send()
     }
 
 }
 
 private extension DetailViewController {
     
+    func bind() {
+        let output = viewModel.bind(input: viewModelInput)
+        
+        output.showLoadingPublisher.sink { [weak self] show in
+            self?.displayLoading(show: show)
+        }.store(in: &subscriptions)
+        
+        output.movieDetail.sink { [weak self] movieDetail in
+            self?.configure(with: movieDetail)
+        }.store(in: &subscriptions)
+    }
+    
     func setup() {
         view.backgroundColor = UIColor(named: "mainColor")
+        
+        loadingActivityIndicator.center = CGPoint(
+            x: view.bounds.midX,
+            y: view.bounds.midY
+        )
+        
+        
         addViews()
+        setupScrollView()
         setConstraints()
-        setupStackViewGenres(genres: ["Drama", "Action", "Mystery", "Drama", "Action", "Mystery", ])
         setStyles()
     }
     
+    func setupScrollView() {
+    }
+    
     func addViews() {
-        view.addSubview(backdropImageView)
-        view.addSubview(posterImageView)
-        view.addSubview(titleLabel)
-        view.addSubview(ratedLabel)
-        view.addSubview(stackViewGenres)
-        view.addSubview(descriptionLabel)
-        view.addSubview(productionCompaniesCollectionView)
+        view.addSubview(scrollView)
+        scrollView.addSubview(mainView)
+        mainView.addSubview(backdropImageView)
+        mainView.addSubview(titleLabel)
+        mainView.addSubview(genresLabel)
+        mainView.addSubview(descriptionLabel)
+        mainView.addSubview(createByCollectionView)
+        mainView.addSubview(autorsLabel)
+        mainView.addSubview(productionCompinesLabel)
+        mainView.addSubview(productionCompaniesCollectionView)
+        mainView.addSubview(loadingActivityIndicator)
     }
     
     func setConstraints() {
         NSLayoutConstraint.activate([
-            backdropImageView.topAnchor.constraint(equalTo: view.topAnchor),
-            backdropImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            backdropImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            scrollView.widthAnchor.constraint(equalTo: view.widthAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+
+        NSLayoutConstraint.activate([
+            mainView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            mainView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            mainView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            mainView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
+        ])
+        
+        NSLayoutConstraint.activate([
+            backdropImageView.topAnchor.constraint(equalTo: mainView.topAnchor),
+            backdropImageView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor),
+            backdropImageView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor),
             backdropImageView.widthAnchor.constraint(equalToConstant: (UIScreen.main.bounds.width)),
             backdropImageView.heightAnchor.constraint(equalToConstant: (UIScreen.main.bounds.height / 3)),
         ])
         
         NSLayoutConstraint.activate([
-            posterImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            posterImageView.centerYAnchor.constraint(equalTo: backdropImageView.centerYAnchor),
-            posterImageView.heightAnchor.constraint(equalToConstant: ((UIScreen.main.bounds.height / 3) - 60)),
-            posterImageView.widthAnchor.constraint(equalToConstant: 150)
+            titleLabel.topAnchor.constraint(equalTo: backdropImageView.bottomAnchor, constant: 16),
+            titleLabel.leadingAnchor.constraint(equalTo: mainView.leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(equalTo: mainView.trailingAnchor, constant: -16)
         ])
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: posterImageView.topAnchor, constant: 22),
-            titleLabel.leadingAnchor.constraint(equalTo: posterImageView.trailingAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+            genresLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
+            genresLabel.leadingAnchor.constraint(equalTo: mainView.leadingAnchor, constant: 16),
+            genresLabel.trailingAnchor.constraint(equalTo: mainView.trailingAnchor, constant: -16)
         ])
         
         NSLayoutConstraint.activate([
-            ratedLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
-            ratedLabel.leadingAnchor.constraint(equalTo: posterImageView.trailingAnchor, constant: 16),
-            ratedLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
-        ])
-        
-        NSLayoutConstraint.activate([
-            stackViewGenres.topAnchor.constraint(equalTo: backdropImageView.bottomAnchor),
-            stackViewGenres.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            stackViewGenres.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
-        ])
-        
-        NSLayoutConstraint.activate([
-            descriptionLabel.topAnchor.constraint(equalTo: stackViewGenres.bottomAnchor, constant: 32),
+            descriptionLabel.topAnchor.constraint(equalTo: genresLabel.bottomAnchor, constant: 12),
             descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
         
         NSLayoutConstraint.activate([
-            productionCompaniesCollectionView.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 32),
-            productionCompaniesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            productionCompaniesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            productionCompaniesCollectionView.heightAnchor.constraint(equalToConstant: 150)
+            autorsLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 12),
+            autorsLabel.leadingAnchor.constraint(equalTo: mainView.leadingAnchor, constant: 16),
+            autorsLabel.trailingAnchor.constraint(equalTo: mainView.trailingAnchor, constant: -16)
         ])
         
-    }
-    
-    func setStyles() {
-        titleLabel.text = "Game of Thrones a Game of Thrones ye Game of Thrones Game of Thrones"
-        ratedLabel.text = "8.9"
-        descriptionLabel.text = "Seven noble families fight for control of the mythical land of Westeros. Friction between the houses leads to full-scale war. All while a very ancient evil awakens in the farthest north. Amidst the war, a neglected military order of misfits, the Night's Watch, is all that stands between the realms of men and icy horrors beyond."
-        titleLabel.setStyle(textColor: .white, size: 22)
-        ratedLabel.setStyle(textColor: UIColor(named: "textColor")!, size: 18)
-        descriptionLabel.setStyle(textColor: .white, size: 16)
+        NSLayoutConstraint.activate([
+            createByCollectionView.topAnchor.constraint(equalTo: autorsLabel.bottomAnchor, constant: 4),
+            createByCollectionView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor, constant: 16),
+            createByCollectionView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor, constant: -16),
+            createByCollectionView.heightAnchor.constraint(equalToConstant: 70)
+        ])
+        
+        NSLayoutConstraint.activate([
+            productionCompinesLabel.topAnchor.constraint(equalTo: createByCollectionView.bottomAnchor, constant: 12),
+            productionCompinesLabel.leadingAnchor.constraint(equalTo: mainView.leadingAnchor, constant: 16),
+            productionCompinesLabel.trailingAnchor.constraint(equalTo: mainView.trailingAnchor, constant: -16)
+        ])
+        
+        NSLayoutConstraint.activate([
+            productionCompaniesCollectionView.topAnchor.constraint(equalTo: productionCompinesLabel.bottomAnchor, constant: 4),
+            productionCompaniesCollectionView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor, constant: 16),
+            productionCompaniesCollectionView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor, constant: -16),
+            productionCompaniesCollectionView.bottomAnchor.constraint(equalTo: mainView.bottomAnchor, constant: -16),
+            productionCompaniesCollectionView.heightAnchor.constraint(equalToConstant: (UIScreen.main.bounds.width / 4))
+        ])
+        
     }
     
 }
 
 extension DetailViewController {
     
-    private func setupStackViewGenres(genres: [String]) {
+    private func configure(with movieDetail: MovieDetail) {
+        productionsCompanies = movieDetail.productionCompanies
+        productionCompaniesCollectionView.reloadData()
+        
+        autors = movieDetail.createdBy ?? []
+        createByCollectionView.reloadData()
+        if let backdropPath = movieDetail.backdropPath, let url = URL(string: "https://image.tmdb.org/t/p/w500\(backdropPath)") {
+            backdropImageView.load(url: url)
+        } else {
+            backdropImageView.image = UIImage(named:"themoviedb")
+        }
+        
+        titleLabel.text = "\(movieDetail.originalName) (\(movieDetail.firstAirDate))"
+        descriptionLabel.text = "Overview\n\n\(movieDetail.overview)"
+        
+        var genresConcat = ""
+        movieDetail.genres.forEach { genre in
+            genresConcat.append("\(genre.name)")
+            genresConcat.append(movieDetail.genres.last?.name != genre.name ? ", ": "")
+        }
+        genresLabel.text = genresConcat
+        autorsLabel.text = "autors".localized
+        productionCompinesLabel.text = "production_companies".localized
+        
+        setStyles()
+    }
+    
+    private func setupStackViewGenres(genres: [Genre]) {
         stackViewGenres.removeViews()
         genres.forEach { genre in
             let genreView = GenresView()
-            genreView.configure(text: genre)
+            genreView.configure(text: genre.name)
             stackViewGenres.addArrangedSubviews(genreView)
         }
+        
+    }
+    
+    func setStyles() {
+        titleLabel.setStyle(textColor: .white, size: 22)
+        descriptionLabel.setStyle(textColor: .white, size: 14)
+        genresLabel.setStyle(textColor: UIColor(named: "textColor")!, size: 14)
+        autorsLabel.setStyle(textColor: .white, size: 14)
+        productionCompinesLabel.setStyle(textColor: .white, size: 14)
+    }
+    
+    private func displayLoading(show: Bool) {
+        if show {
+            loadingActivityIndicator.startAnimating()
+        } else {
+            loadingActivityIndicator.stopAnimating()
+        }
+        loadingActivityIndicator.isHidden = !show
     }
     
 }
@@ -176,14 +321,23 @@ extension DetailViewController: UICollectionViewDelegate {
 extension DetailViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return productionsCompanies.count
+        return collectionView == self.productionCompaniesCollectionView ? productionsCompanies.count : autors.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductionCompanieCollectionViewCell.identifier, for: indexPath) as? ProductionCompanieCollectionViewCell else { return UICollectionViewCell() }
-        let posterPath = productionsCompanies[indexPath.row]
-        cell.configure(with: posterPath)
-        return cell
+        
+        if collectionView == self.productionCompaniesCollectionView {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductionCompanieCollectionViewCell.identifier, for: indexPath) as? ProductionCompanieCollectionViewCell else { return UICollectionViewCell() }
+            let productionCompany = productionsCompanies[indexPath.row]
+            cell.configure(with: productionCompany)
+            return cell
+        } else {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CreateByCollectionViewCell.identifier, for: indexPath) as? CreateByCollectionViewCell else { return UICollectionViewCell() }
+            let autor = autors[indexPath.row]
+            cell.configure(with: autor)
+            return cell
+        }
+        
     }
     
 }

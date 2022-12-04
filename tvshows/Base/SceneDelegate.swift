@@ -10,21 +10,24 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-
+    var mainCoordinator: MainCoordinator?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
         
+        mainCoordinator = MainCoordinator(window: self.window!)
+        mainCoordinator?.start()
+        
         //if TvShowUserDefaults.shared.requestToken != nil {
-            let navigationController = UINavigationController(rootViewController: MainViewController())
-            window?.rootViewController = navigationController
+            //let navigationController = UINavigationController(rootViewController: MainViewController())
+            //window?.rootViewController = navigationController
         //} else {
             // window?.rootViewController = LoginViewController()
         //}
         
-        window?.makeKeyAndVisible()
+        //window?.makeKeyAndVisible()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

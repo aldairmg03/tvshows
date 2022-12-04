@@ -19,6 +19,10 @@ final class MainViewModel: MainViewModelProtocol {
             self?.fetchTvShows(index: index)
         }).store(in: &subscriptions)
         
+        input.seeMovieDetailPublisher.sink(receiveValue: { [weak self] movieId in
+            self?.navigateToMovieDetail(movieId: movieId)
+        }).store(in: &subscriptions)
+        
         return output
     }
     
@@ -38,6 +42,10 @@ final class MainViewModel: MainViewModelProtocol {
             .store(in: &subscriptions)
         
         
+    }
+    
+    func navigateToMovieDetail(movieId: Int) {
+        self.output.navigateToDetailPublisher.send(movieId)
     }
     
 }

@@ -14,7 +14,7 @@ class MainViewController: UIViewController {
     
     private var subscriptions = Set<AnyCancellable>()
     private let viewModelInput = MainViewModelInput()
-    private let viewModel: MainViewModelProtocol
+    let viewModel: MainViewModelProtocol
     
     private lazy var segmentedControl: UISegmentedControl = {
         let segmentedControl = UISegmentedControl(items: ["popular".localized, "top_rated".localized, "on_tv".localized, "airing_today".localized])
@@ -54,8 +54,8 @@ class MainViewController: UIViewController {
         return indicator
     }()
     
-    init() {
-        viewModel = MainViewModel()
+    init(viewModel: MainViewModelProtocol) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -65,8 +65,8 @@ class MainViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setup()
         bind()
+        setup()
         fetchTvShows(index: 0)
     }
     
@@ -110,6 +110,10 @@ private extension MainViewController {
         
         output.tvShows.sink {[weak self] tvShows in
             self?.loadData(items: tvShows)
+        }.store(in: &subscriptions)
+        
+        output.navigateToDetailPublisher.sink { [weak self] movieId in
+            print(movieId)
         }.store(in: &subscriptions)
     }
     
@@ -166,6 +170,12 @@ private extension MainViewController {
 }
 
 extension MainViewController: UICollectionViewDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let movie = movies[indexPath.row]
+        viewModelInput.seeMovieDetailPublisher.send(movie.id)
+        collectionView.deselectItem(at: indexPath, animated: true)
+    }
     
 }
 

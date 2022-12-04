@@ -18,21 +18,9 @@ class ProductionCompanieCollectionViewCell: UICollectionViewCell {
         imageView.clipsToBounds = true
         return imageView
     }()
-    /*
-     imageView.contentMode = .scaleAspectFill
-     imageView.clipsToBounds = true*/
-    
-    private lazy var companieLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 2
-        label.textColor = .systemOrange
-        return label
-    }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.backgroundColor = .white
         setupCell()
     }
     
@@ -45,11 +33,12 @@ class ProductionCompanieCollectionViewCell: UICollectionViewCell {
         productionCompanieImageView.frame = contentView.bounds
     }
     
-    public func configure(with logoPath: String) {
-        guard let url = URL(string: "https://image.tmdb.org/t/p/w500\(logoPath)") else { return }
-        productionCompanieImageView.load(url: url)
-        companieLabel.text = "Companie Companie"
-        //companieLabel.setStyle(textColor: UIColor(named: "textColor")!, size: 14)
+    public func configure(with productionCompany: ProductionCompany) {
+        if let logoPath = productionCompany.logoPath, let url = URL(string: "https://image.tmdb.org/t/p/w500\(logoPath)") {
+            productionCompanieImageView.load(url: url)
+        } else {
+            productionCompanieImageView.image = UIImage(named:"themoviedb")
+        }
     }
     
 }
@@ -57,9 +46,9 @@ class ProductionCompanieCollectionViewCell: UICollectionViewCell {
 private extension ProductionCompanieCollectionViewCell {
     
     func setupCell () {
+        contentView.backgroundColor = UIColor(named: "cardColor")
         contentViewCornerRadius()
         addViews()
-        setConstraints()
     }
     
     func contentViewCornerRadius() {
@@ -71,27 +60,6 @@ private extension ProductionCompanieCollectionViewCell {
     
     func addViews() {
         contentView.addSubview(productionCompanieImageView)
-        contentView.addSubview(companieLabel)
-    }
-    
-    func setConstraints() {
-        
-        //  CGSize(width: (UIScreen.main.bounds.width / 4) - 12, height: (UIScreen.main.bounds.width / 4) - 12)
-        NSLayoutConstraint.activate([
-            productionCompanieImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            productionCompanieImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            productionCompanieImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            productionCompanieImageView.widthAnchor.constraint(equalToConstant: 100),
-            productionCompanieImageView.heightAnchor.constraint(equalToConstant: 100)
-        ])
-        
-        NSLayoutConstraint.activate([
-            companieLabel.topAnchor.constraint(equalTo: productionCompanieImageView.bottomAnchor, constant: 4),
-            companieLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            companieLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            companieLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            companieLabel.heightAnchor.constraint(equalToConstant: 50)
-        ])
     }
     
 }
