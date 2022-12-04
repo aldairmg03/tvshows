@@ -10,8 +10,6 @@ import Combine
 
 protocol ApiFetcheable {
     
-    func tvShowFetch(forCategory category: String) -> AnyPublisher<TvShowsResponse, ApiError>
-    
     func createRequestToken() -> AnyPublisher<CreateTokenResponse, ApiError>
     
     func authentication(auth: Authentication) -> AnyPublisher<CreateTokenResponse, ApiError>
@@ -30,10 +28,6 @@ class ApiManager {
 }
 
 extension ApiManager: ApiFetcheable {
-    
-    func tvShowFetch(forCategory category: String) -> AnyPublisher<TvShowsResponse, ApiError> {
-        return request(.get, with: makeComponets(withEndpoint: category), data: nil)
-    }
     
     func createRequestToken() -> AnyPublisher<CreateTokenResponse, ApiError> {
         return request(.get, with: makeComponets(withEndpoint: TheMovieDBAPI.requesttoken), data: nil)

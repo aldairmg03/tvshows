@@ -10,7 +10,9 @@ import Foundation
 class MainSceneBuilder {
     
     func build() -> MainViewController {
-        let mainViewModel = MainViewModel()
+        let mainRepository = MainRepository()
+        let mainUseCase = MainUseCase(repository: mainRepository)
+        let mainViewModel = MainViewModel(mainUseCase: mainUseCase)
         let mainViewController = MainViewController(viewModel: mainViewModel)
         return mainViewController
     }
