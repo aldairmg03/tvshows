@@ -81,11 +81,7 @@ class MainViewController: UIViewController {
             self.viewModelInput.navigateToProfilePublisher.send()
         }))
         ac.addAction(UIAlertAction(title: "log_out".localized, style: .destructive, handler: { _ in
-            let loginVC = LoginViewController()
-            guard let window = self.view.window else {
-                return
-            }
-            window.switchRootViewController(loginVC, animated: true)
+            self.navigateToLogin()
         }))
         ac.addAction(UIAlertAction(title: "cancel".localized, style: .cancel))
         ac.popoverPresentationController?.barButtonItem = self.navigationItem.rightBarButtonItem
@@ -162,6 +158,11 @@ private extension MainViewController {
         self.movies = items
         self.tvShowsCollectionView.reloadData()
         self.tvShowsCollectionView.setContentOffset(.zero, animated: true)
+    }
+    
+    func navigateToLogin() {
+        let sceneDelegate = self.view.window?.windowScene?.delegate!
+        self.viewModelInput.navigateToLoginPublisher.send(sceneDelegate!)
     }
     
 }

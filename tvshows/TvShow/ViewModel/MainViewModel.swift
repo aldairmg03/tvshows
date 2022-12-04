@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 final class MainViewModel: MainViewModelProtocol {
     
@@ -30,6 +31,10 @@ final class MainViewModel: MainViewModelProtocol {
         
         input.navigateToProfilePublisher.sink { [weak self] in
             self?.navigateToMovieProfile()
+        }.store(in: &subscriptions)
+        
+        input.navigateToLoginPublisher.sink {[weak self] sceneDelegate in
+            self?.navigateToLogin(with: sceneDelegate)
         }.store(in: &subscriptions)
         
         return output
@@ -59,6 +64,10 @@ final class MainViewModel: MainViewModelProtocol {
     
     func navigateToMovieProfile() {
         self.output.navigateToProfilePublisher.send()
+    }
+    
+    func navigateToLogin(with sceneDelegate: UISceneDelegate) {
+        self.output.navigateToLoginPublisher.send(sceneDelegate)
     }
     
 }

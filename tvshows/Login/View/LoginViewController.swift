@@ -12,7 +12,7 @@ class LoginViewController: UIViewController {
     
     private var subscriptions = Set<AnyCancellable>()
     private let viewModelInput = LoginViewModelInput()
-    private let viewModel: LoginViewModelProtocol
+    let viewModel: LoginViewModelProtocol
 
     private lazy var bannerImageView: UIImageView = {
         let imageView = UIImageView()
@@ -106,8 +106,8 @@ class LoginViewController: UIViewController {
         return indicator
     }()
     
-    init() {
-        viewModel = LoginViewModel()
+    init(viewModel: LoginViewModelProtocol) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -136,13 +136,10 @@ private extension LoginViewController {
             self?.showErrorMessage(errorMessage: errorMessage)
         }.store(in: &subscriptions)
         
-        output.navigateToMainPublisher.sink { [weak self] in
-            /*let navigationController = UINavigationController(rootViewController: MainViewController())
-            guard let window = self?.view.window else {
-                return
-            }
-            window.switchRootViewController(navigationController, animated: true)*/
+        output.successLoginPublisher.sink { [weak self] in
+            self?.navigateToMain()
         }.store(in: &subscriptions)
+        
     }
     
     func setup() {
@@ -275,6 +272,11 @@ extension LoginViewController {
     func showErrorMessage(errorMessage: String) {
         errorLabel.text = errorMessage
         errorLabel.isHidden = false
+    }
+    
+    private func navigateToMain() {
+        let sceneDelegate = self.view.window?.windowScene?.delegate!
+        self.viewModelInput.navigateToMainPublisher.send(sceneDelegate!)
     }
 
     

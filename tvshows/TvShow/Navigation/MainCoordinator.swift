@@ -33,6 +33,10 @@ class MainCoordinator: Coordinator {
             self?.coordinateToProfile()
         }.store(in: &subscriptions)
         
+        output.navigateToLoginPublisher.sink { [weak self] sceneDelegate in
+            self?.coordinateToLogin(with: sceneDelegate)
+        }.store(in: &subscriptions)
+        
         navigationController = UINavigationController(rootViewController: controller)
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
@@ -47,6 +51,11 @@ class MainCoordinator: Coordinator {
     func coordinateToProfile() {
         let detailCoordinator = ProfileCoordinator(navigationController: self.navigationController!)
         coordinate(to: detailCoordinator)
+    }
+    
+    private func coordinateToLogin(with sceneDelegate: UISceneDelegate) {
+        let sc = sceneDelegate as? SceneDelegate
+        sc?.loginCoordinator?.start()
     }
     
     

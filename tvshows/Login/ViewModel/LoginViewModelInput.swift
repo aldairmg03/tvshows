@@ -7,7 +7,9 @@
 
 import Foundation
 import Combine
+import UIKit
 
 struct LoginViewModelInput {
     let startLoginPublisher = PassthroughSubject<User, Never>()
+    let navigateToMainPublisher = PassthroughSubject<UISceneDelegate, Never>()
 }

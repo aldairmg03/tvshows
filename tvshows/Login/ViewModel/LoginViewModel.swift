@@ -10,8 +10,13 @@ import Combine
 
 final class LoginViewModel: LoginViewModelProtocol {
     
+    private let loginUseCase: LoginUseCaseProtocol
     let output = LoginViewModelOutput()
     private var subscriptions = Set<AnyCancellable>()
+    
+    init(loginUseCase: LoginUseCaseProtocol) {
+        self.loginUseCase = loginUseCase
+    }
     
     func bind(input: LoginViewModelInput) -> LoginViewModelOutput {
         
@@ -19,12 +24,16 @@ final class LoginViewModel: LoginViewModelProtocol {
             self?.requestToken(with: user)
         }.store(in: &subscriptions)
         
+        input.navigateToMainPublisher.sink {[weak self] sceneDelegate in
+            self?.output.navigateToMainPublisher.send(sceneDelegate)
+        }.store(in: &subscriptions)
+        
         return output
     }
     
     private func requestToken(with user: User) {
         self.output.loadingPublisher.send(true)
-        ApiManager.shared.createRequestToken()
+        self.loginUseCase.createRequestToken()
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] value in
                 self?.output.loadingPublisher.send(false)
@@ -40,7 +49,7 @@ final class LoginViewModel: LoginViewModelProtocol {
     private func authentication(with user: User, requestToken: String?) {
         guard let requestToken = requestToken else { return }
         let auth = Authentication(username: user.username, password: user.password, requestToken: requestToken)
-        ApiManager.shared.authentication(auth: auth)
+        self.loginUseCase.authentication(auth: auth)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] value in
                 self?.output.loadingPublisher.send(false)
@@ -50,7 +59,7 @@ final class LoginViewModel: LoginViewModelProtocol {
                 } else {
                     TvShowUserDefaults.shared.requestToken = response.requestToken!
                     TvShowUserDefaults.shared.username = user.username
-                    self?.output.navigateToMainPublisher.send()
+                    self?.output.successLoginPublisher.send()
                 }
             })
             .store(in: &subscriptions)

@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 struct MainViewModelOutput {
     let showLoadingPublisher = PassthroughSubject<Void, Never>()
@@ -14,4 +15,5 @@ struct MainViewModelOutput {
     let tvShows = PassthroughSubject<[Movie], Never>()
     let navigateToDetailPublisher = PassthroughSubject<Int, Never>()
     let navigateToProfilePublisher = PassthroughSubject<Void, Never>()
+    let navigateToLoginPublisher = PassthroughSubject<UISceneDelegate, Never>()
 }

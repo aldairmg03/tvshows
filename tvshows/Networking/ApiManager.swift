@@ -8,14 +8,6 @@
 import Foundation
 import Combine
 
-protocol ApiFetcheable {
-    
-    func createRequestToken() -> AnyPublisher<CreateTokenResponse, ApiError>
-    
-    func authentication(auth: Authentication) -> AnyPublisher<CreateTokenResponse, ApiError>
-    
-}
-
 class ApiManager {
     
     public static let shared = ApiManager()
@@ -27,16 +19,7 @@ class ApiManager {
     }
 }
 
-extension ApiManager: ApiFetcheable {
-    
-    func createRequestToken() -> AnyPublisher<CreateTokenResponse, ApiError> {
-        return request(.get, with: makeComponets(withEndpoint: TheMovieDBAPI.requesttoken), data: nil)
-    }
-    
-    func authentication(auth: Authentication) -> AnyPublisher<CreateTokenResponse, ApiError> {
-        let jsonData = try? JSONEncoder().encode(auth)
-        return request(.post, with: makeComponets(withEndpoint: TheMovieDBAPI.auth), data: jsonData)
-    }
+extension ApiManager {
     
     func request<T>(
         _ type: RequestType,

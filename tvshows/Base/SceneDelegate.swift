@@ -11,6 +11,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
     var mainCoordinator: MainCoordinator?
+    var loginCoordinator: LoginCoodinator?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
@@ -18,16 +19,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.windowScene = windowScene
         
         mainCoordinator = MainCoordinator(window: self.window!)
-        mainCoordinator?.start()
+        loginCoordinator = LoginCoodinator(window: self.window!)
         
-        //if TvShowUserDefaults.shared.requestToken != nil {
-            //let navigationController = UINavigationController(rootViewController: MainViewController())
-            //window?.rootViewController = navigationController
-        //} else {
-            // window?.rootViewController = LoginViewController()
-        //}
-        
-        //window?.makeKeyAndVisible()
+        if TvShowUserDefaults.shared.requestToken != nil {
+            mainCoordinator?.start()
+        } else {
+            loginCoordinator?.start()
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

@@ -7,9 +7,11 @@
 
 import Foundation
 import Combine
+import UIKit
 
 struct LoginViewModelOutput {
     let loadingPublisher = PassthroughSubject<Bool, Never>()
     let showErrorMessagePublisher = PassthroughSubject<String, Never>()
-    let navigateToMainPublisher = PassthroughSubject<Void, Never>()
+    let successLoginPublisher = PassthroughSubject<Void, Never>()
+    let navigateToMainPublisher = PassthroughSubject<UISceneDelegate, Never>()
 }
