@@ -76,9 +76,9 @@ class LoginViewController: UIViewController {
     
     private lazy var errorLabel: UILabel = {
         let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = .red
-        label.text = "error_message".localized
         label.numberOfLines = 2
         label.isHidden = true
         label.textAlignment = .center
@@ -154,13 +154,13 @@ private extension LoginViewController {
         stackView.addArrangedSubview(userTextField)
         stackView.addArrangedSubview(passwordTextField)
         stackView.addArrangedSubview(loginButton)
-        stackView.addArrangedSubview(errorLabel)
         
         backgrounLoading.addSubview(loadingActivityIndicator)
         
         view.addSubview(bannerImageView)
         view.addSubview(theMovieDBImageView)
         view.addSubview(stackView)
+        view.addSubview(errorLabel)
         view.addSubview(backgrounLoading)
         
     }
@@ -192,6 +192,12 @@ private extension LoginViewController {
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
             stackView.heightAnchor.constraint(equalToConstant: 200)
+        ])
+        
+        NSLayoutConstraint.activate([
+            errorLabel.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 6),
+            errorLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            errorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
         ])
         
         NSLayoutConstraint.activate([

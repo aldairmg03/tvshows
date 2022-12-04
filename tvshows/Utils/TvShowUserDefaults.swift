@@ -10,21 +10,16 @@ import Foundation
 class TvShowUserDefaults {
     private let defaults = UserDefaults.standard
     
-    private let keyRequestToken = "request_token"
     private let keyUsername = "username"
   
-    var requestToken: String? {
-        set {
-            defaults.set(newValue, forKey: keyRequestToken)
-        }
-        get {
-            return defaults.string(forKey: keyRequestToken)
-        }
-    }
-    
     var username: String? {
         set {
-            defaults.set(newValue, forKey: keyUsername)
+            if newValue != nil {
+                defaults.set(newValue, forKey: keyUsername)
+            } else {
+                defaults.removeObject(forKey: keyUsername)
+                defaults.synchronize()
+            }
         }
         get {
             return defaults.string(forKey: keyUsername)

@@ -21,7 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         mainCoordinator = MainCoordinator(window: self.window!)
         loginCoordinator = LoginCoodinator(window: self.window!)
         
-        if TvShowUserDefaults.shared.requestToken != nil {
+        if TvShowUserDefaults.shared.username != nil {
             mainCoordinator?.start()
         } else {
             loginCoordinator?.start()

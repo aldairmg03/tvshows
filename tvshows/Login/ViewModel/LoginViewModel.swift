@@ -57,7 +57,6 @@ final class LoginViewModel: LoginViewModelProtocol {
                 if response.statusMessage != nil {
                     self?.output.showErrorMessagePublisher.send(response.statusMessage!)
                 } else {
-                    TvShowUserDefaults.shared.requestToken = response.requestToken!
                     TvShowUserDefaults.shared.username = user.username
                     self?.output.successLoginPublisher.send()
                 }

@@ -33,8 +33,8 @@ final class MainViewModel: MainViewModelProtocol {
             self?.navigateToMovieProfile()
         }.store(in: &subscriptions)
         
-        input.navigateToLoginPublisher.sink {[weak self] sceneDelegate in
-            self?.navigateToLogin(with: sceneDelegate)
+        input.closeSessionPublisher.sink {[weak self] sceneDelegate in
+            self?.closeSession(with: sceneDelegate)
         }.store(in: &subscriptions)
         
         return output
@@ -64,6 +64,11 @@ final class MainViewModel: MainViewModelProtocol {
     
     func navigateToMovieProfile() {
         self.output.navigateToProfilePublisher.send()
+    }
+    
+    func closeSession(with sceneDelegate: UISceneDelegate) {
+        TvShowUserDefaults.shared.username = nil
+        navigateToLogin(with: sceneDelegate)
     }
     
     func navigateToLogin(with sceneDelegate: UISceneDelegate) {

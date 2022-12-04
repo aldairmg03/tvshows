@@ -13,5 +13,5 @@ struct MainViewModelInput {
     let fetchTvShowsPublisher = PassthroughSubject<Int, Never>()
     let seeMovieDetailPublisher = PassthroughSubject<Int, Never>()
     let navigateToProfilePublisher = PassthroughSubject<Void, Never>()
-    let navigateToLoginPublisher = PassthroughSubject<UISceneDelegate, Never>()
+    let closeSessionPublisher = PassthroughSubject<UISceneDelegate, Never>()
 }
