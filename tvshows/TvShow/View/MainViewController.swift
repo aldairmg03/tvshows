@@ -29,7 +29,7 @@ class MainViewController: UIViewController {
         return segmentedControl
     }()
     
-    public lazy var searchResultsCollecitonView: UICollectionView = {
+    public lazy var tvShowsCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.itemSize = CGSize(width: (UIScreen.main.bounds.width / 2) - 24, height: 310)
         layout.minimumInteritemSpacing = 0
@@ -123,7 +123,7 @@ private extension MainViewController {
     
     func addViews() {
         view.addSubview(segmentedControl)
-        view.addSubview(searchResultsCollecitonView)
+        view.addSubview(tvShowsCollectionView)
         loadingActivityIndicator.center = CGPoint(
             x: view.bounds.midX,
             y: view.bounds.midY
@@ -139,10 +139,10 @@ private extension MainViewController {
         ])
         
         NSLayoutConstraint.activate([
-            searchResultsCollecitonView.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 16),
-            searchResultsCollecitonView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            searchResultsCollecitonView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            searchResultsCollecitonView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
+            tvShowsCollectionView.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 16),
+            tvShowsCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            tvShowsCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            tvShowsCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
     }
     
@@ -160,7 +160,7 @@ private extension MainViewController {
     
     func loadData(items: [Movie]) {
         self.movies = items
-        self.searchResultsCollecitonView.reloadData()
+        self.tvShowsCollectionView.reloadData()
     }
     
 }

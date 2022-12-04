@@ -18,10 +18,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.windowScene = windowScene
         
         //if TvShowUserDefaults.shared.requestToken != nil {
-            //let navigationController = UINavigationController(rootViewController: MainViewController())
-            //window?.rootViewController = navigationController
+            let navigationController = UINavigationController(rootViewController: MainViewController())
+            window?.rootViewController = navigationController
         //} else {
-            window?.rootViewController = LoginViewController()
+            // window?.rootViewController = LoginViewController()
         //}
         
         window?.makeKeyAndVisible()
