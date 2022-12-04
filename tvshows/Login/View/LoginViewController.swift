@@ -76,11 +76,12 @@ class LoginViewController: UIViewController {
     
     private lazy var errorLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 12)
+        label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = .red
         label.text = "error_message".localized
         label.numberOfLines = 2
         label.isHidden = true
+        label.textAlignment = .center
         return label
     }()
     
@@ -242,6 +243,7 @@ extension LoginViewController {
     }
     
     @objc private func handleTextChange() {
+        errorLabel.isHidden = true
         let usernameText = userTextField.text!
         let passwordText = passwordTextField.text!
         let isFormFilled = !usernameText.isEmpty && !passwordText.isEmpty
@@ -251,6 +253,7 @@ extension LoginViewController {
     }
     
     private func validateForm() {
+        errorLabel.isHidden = true
         guard let usernameText = userTextField.text, !usernameText.isEmpty else { return }
         guard let passwordText = passwordTextField.text, !passwordText.isEmpty else { return }
         startLogin(username: usernameText, password: passwordText)

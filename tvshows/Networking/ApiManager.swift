@@ -32,7 +32,7 @@ extension ApiManager {
         }
         
         var urlRequest = URLRequest(url: url)
-        urlRequest.addValue("application/json", forHTTPHeaderField: "Accept")
+        urlRequest.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
         urlRequest.httpMethod = type.rawValue
         urlRequest.httpBody = data
         
